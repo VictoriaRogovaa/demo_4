@@ -6,6 +6,13 @@ document.addEventListener('DOMContentLoaded', function() {
         '#A05195', '#C27BB3', '#FDCB6E', '#FFEAA7'
     ];
 
+    // Тестовые данные для совместимости (в реальном приложении будут загружаться с сервера)
+    const testMatches = [
+        { name: "Анна", age: 25, city: "Москва", interests: ["music", "travel"], color: "#FF6B6B", avatar: null, compatibility: 92 },
+        { name: "Максим", age: 28, city: "Санкт-Петербург", interests: ["sports", "games"], color: "#4ECDC4", avatar: null, compatibility: 78 },
+        { name: "Елена", age: 23, city: "Москва", interests: ["art", "books"], color: "#A05195", avatar: null, compatibility: 85 }
+    ];
+
     // Элементы
     const mainScreen = document.getElementById('mainScreen');
     const startBtn = document.getElementById('startBtn');
@@ -42,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     let currentStep = 1;
-    const totalSteps = 7; // Увеличили на 1 из-за добавления описания
+    const totalSteps = 7;
 
     // Инициализация
     startBtn.addEventListener('click', startRegistration);
@@ -331,6 +338,16 @@ document.addEventListener('DOMContentLoaded', function() {
                     ${profileData.age} лет, ${profileData.city}
                 </div>
                 
+                <!-- Блок совместимости -->
+                <div class="compatibility-section">
+                    <div class="compatibility-badge" style="background: ${profileData.moodColor}">
+                        Ваша совместимость: ${calculateCompatibility(profileData)}%
+                    </div>
+                    <div class="compatibility-cards">
+                        ${generateMatchCards(profileData)}
+                    </div>
+                </div>
+                
                 ${profileData.description ? `
                     <div class="profile-description">
                         ${profileData.description}
@@ -384,6 +401,32 @@ document.addEventListener('DOMContentLoaded', function() {
             localStorage.removeItem('datingProfile');
             location.reload();
         });
+    }
+
+    // Алгоритм совместимости
+    function calculateCompatibility(user) {
+        // В реальном приложении здесь будет сложный алгоритм
+        // Пока используем простую случайную величину с базой от цвета и города
+        let base = 70;
+        if (user.city === "Москва") base += 10;
+        if (user.moodColor === "#FF6B6B") base += 5;
+        return Math.min(100, base + Math.floor(Math.random() * 20));
+    }
+
+    // Генерация карточек совместимости
+    function generateMatchCards(user) {
+        return testMatches.map(match => `
+            <div class="match-card" style="border-color: ${match.color}">
+                <div class="match-avatar">
+                    ${match.avatar ? 
+                        `<img src="${match.avatar}" alt="${match.name}">` : 
+                        `<div style="background: ${match.color}; width: 100%; height: 100%; border-radius: 50%;"></div>`
+                    }
+                </div>
+                <div class="match-name">${match.name}</div>
+                <div class="match-percent">${match.compatibility}%</div>
+            </div>
+        `).join('');
     }
 
     // Вспомогательные функции
