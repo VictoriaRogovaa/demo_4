@@ -390,70 +390,149 @@ p {
 .logo-path {
     animation: drawLogo 2s ease-out forwards;
 }
-/* Система совместимости */
-.compatibility-section {
-    margin: 25px 0;
-    width: 100%;
+
+/* Добавим в конец файла, после существующих медиа-запросов */
+
+@media (max-width: 480px) {
+    /* Общие стили для кнопок на мобильных */
+    .btn {
+        width: 100%;
+        max-width: 300px;
+        margin: 8px auto;
+        padding: 14px 20px;
+    }
+
+    /* Навигация между шагами */
+    .navigation {
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+        gap: 10px;
+    }
+
+    .navigation .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    /* Контейнер тегов интересов */
+    .tags-container {
+        gap: 8px;
+        padding: 0 10px;
+    }
+
+    .tag {
+        padding: 8px 14px;
+        font-size: 0.9rem;
+    }
+
+    /* Цветовые варианты */
+    .colors-container {
+        gap: 10px;
+        padding: 0 10px;
+    }
+
+    .color-option {
+        width: 40px;
+        height: 40px;
+    }
+
+    /* Поля ввода */
+    .input-field {
+        width: calc(100% - 20px);
+        margin: 10px auto;
+    }
+
+    /* Профиль */
+    .profile-actions {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .profile-actions .btn {
+        width: 100%;
+        max-width: 300px;
+    }
+
+    /* Карточки совместимости */
+    .match-card {
+        min-width: 120px;
+    }
 }
 
-.compatibility-badge {
+@media (max-width: 360px) {
+    /* Для совсем маленьких экранов */
+    .tag {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+
+    .color-option {
+        width: 35px;
+        height: 35px;
+    }
+
+    h1 {
+        font-size: 1.8rem;
+    }
+
+    p {
+        font-size: 1rem;
+    }
+}
+
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: none !important;
+}
+.profile-status {
     display: inline-block;
-    padding: 8px 20px;
-    border-radius: 20px;
-    color: white;
-    font-weight: 500;
-    margin-bottom: 15px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    animation: pulse 2s infinite alternate;
-}
-
-.compatibility-cards {
-    display: flex;
-    gap: 15px;
-    overflow-x: auto;
-    padding: 10px 0;
-    scrollbar-width: thin;
-}
-
-.match-card {
-    min-width: 150px;
-    background: white;
-    border-radius: 12px;
-    padding: 15px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.08);
-    transition: all 0.3s ease;
-    border: 2px solid transparent;
-}
-
-.match-card:hover {
-    transform: translateY(-5px);
-    border-color: var(--primary);
-}
-
-.match-avatar {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    object-fit: cover;
-    margin: 0 auto 10px;
-    display: block;
-    border: 2px solid var(--primary);
-}
-
-.match-name {
-    font-weight: 600;
-    text-align: center;
-    margin-bottom: 5px;
-}
-
-.match-percent {
-    text-align: center;
+    margin-left: 10px;
     font-size: 0.9rem;
-    color: var(--primary);
-    font-weight: 700;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 15px;
+    vertical-align: middle;
 }
 
-@keyframes pulse-opacity {
-    0% { opacity: 0.9; }
-    100% { opacity: 1; }
+.status-online {
+    background: #4CAF50;
+    color: white;
+}
+
+.status-offline {
+    background: #F44336;
+    color: white;
+}
+
+.status-recent {
+    background: #FFC107;
+    color: var(--text);
+}
+/* Добавляем в конец файла */
+.profile-status {
+    display: inline-block;
+    margin-left: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 15px;
+    vertical-align: middle;
+}
+
+.status-online {
+    background: #4CAF50;
+    color: white;
+}
+
+.status-offline {
+    background: #F44336;
+    color: white;
+}
+
+.status-recent {
+    background: #FFC107;
+    color: var(--text);
 }
