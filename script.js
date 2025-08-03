@@ -1,25 +1,27 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Основные цвета
     const colorPalette = [
-        '#10367D', // Основной синий
-        '#2D4D9E', 
-        '#4A64BF',
-        '#677BDF',
-        '#FF6B6B', // Красный
-        '#FF8E8E',
-        '#4ECDC4', // Бирюзовый
-        '#7EDFD8',
-        '#A05195', // Фиолетовый
-        '#C27BB3',
-        '#FDCB6E', // Жёлтый
-        '#FFEAA7'
+        '#10367D', '#2D4D9E', '#4A64BF', '#677BDF',
+        '#FF6B6B', '#FF8E8E', '#4ECDC4', '#7EDFD8',
+        '#A05195', '#C27BB3', '#FDCB6E', '#FFEAA7'
     ];
 
     // Элементы
     const mainScreen = document.getElementById('mainScreen');
     const startBtn = document.getElementById('startBtn');
     const registrationForm = document.getElementById('registrationForm');
+    const logo = document.querySelector('.logo-path');
     
+    // Инициализация анимации логотипа
+    function initLogoAnimation() {
+        logo.style.strokeDasharray = '150';
+        logo.style.strokeDashoffset = '150';
+        setTimeout(() => {
+            logo.style.animation = 'drawLogo 2s ease-out forwards';
+        }, 500);
+    }
+    initLogoAnimation();
+
     // Проверяем сохранённый профиль
     const savedProfile = localStorage.getItem('datingProfile');
     if (savedProfile) {
@@ -32,6 +34,7 @@ document.addEventListener('DOMContentLoaded', function() {
         name: '',
         age: '',
         city: '',
+        description: '',
         interests: [],
         moodColor: '#10367D',
         avatar: null,
@@ -39,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     let currentStep = 1;
-    const totalSteps = 6;
+    const totalSteps = 7; // Увеличили на 1 из-за добавления описания
 
     // Инициализация
     startBtn.addEventListener('click', startRegistration);
@@ -52,9 +55,7 @@ document.addEventListener('DOMContentLoaded', function() {
             loadRegistrationForm();
             setTimeout(() => {
                 registrationForm.style.opacity = 1;
-                // Фокус на первое поле
-                const firstInput = document.getElementById('userName');
-                if (firstInput) firstInput.focus();
+                focusOnCurrentField();
             }, 50);
         }, 500);
     }
@@ -118,6 +119,16 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
 
             <div class="form-step" data-step="6">
+                <h2>О себе</h2>
+                <p>Расскажите что-то о себе (необязательно)</p>
+                <textarea class="input-field" id="userDescription" placeholder="Я люблю путешествия, книги и..." rows="4"></textarea>
+                <div class="navigation">
+                    <button class="btn prev-step">Назад</button>
+                    <button class="btn next-step">Далее</button>
+                </div>
+            </div>
+
+            <div class="form-step" data-step="7">
                 <h2>Ваше фото</h2>
                 <p>Добавьте фото для профиля (необязательно)</p>
                 <div class="avatar-upload">
@@ -125,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         📸 Выбрать фото
                         <input type="file" id="avatarUpload" accept="image/*" hidden>
                     </label>
-                    <div class="avatar-preview hidden" id="avatarPreview"></div>
+                    <div class="avatar-preview" id="avatarPreview"></div>
                 </div>
                 <div class="navigation">
                     <button class="btn prev-step">Назад</button>
@@ -135,6 +146,7 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
 
         initFormHandlers();
+        focusOnCurrentField();
     }
 
     function initFormHandlers() {
@@ -169,9 +181,11 @@ document.addEventListener('DOMContentLoaded', function() {
         document.querySelectorAll('.color-option').forEach(color => {
             color.addEventListener('click', function() {
                 document.querySelectorAll('.color-option').forEach(c => {
-                    c.classList.remove('selected');
+                    c.style.transform = 'scale(1)';
+                    c.style.boxShadow = 'none';
                 });
-                this.classList.add('selected');
+                this.style.transform = 'scale(1.1)';
+                this.style.boxShadow = '0 0 15px rgba(0,0,0,0.2)';
                 userData.moodColor = this.dataset.color;
             });
         });
@@ -185,7 +199,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     userData.avatar = e.target.result;
                     const preview = document.getElementById('avatarPreview');
                     preview.style.backgroundImage = `url(${e.target.result})`;
-                    preview.classList.remove('hidden');
+                    preview.classList.add('has-image');
                 };
                 reader.readAsDataURL(file);
             }
@@ -194,14 +208,27 @@ document.addEventListener('DOMContentLoaded', function() {
         // Сохранение
         document.getElementById('completeBtn')?.addEventListener('click', completeRegistration);
 
-        // Обработка нажатия Enter
+        // Обработка Enter в полях ввода
         document.querySelectorAll('.input-field').forEach(input => {
             input.addEventListener('keypress', function(e) {
                 if (e.key === 'Enter') {
+                    e.preventDefault();
                     goToNextStep();
                 }
             });
         });
+    }
+
+    function focusOnCurrentField() {
+        const activeStep = document.querySelector('.form-step.active');
+        if (!activeStep) return;
+        
+        const input = activeStep.querySelector('input, textarea');
+        if (input) {
+            setTimeout(() => {
+                input.focus();
+            }, 300);
+        }
     }
 
     function goToNextStep() {
@@ -214,12 +241,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (nextStep) {
             nextStep.classList.add('active');
             nextStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            
-            // Фокус на следующее поле
-            setTimeout(() => {
-                const nextInput = nextStep.querySelector('input');
-                if (nextInput) nextInput.focus();
-            }, 300);
+            focusOnCurrentField();
         }
     }
 
@@ -230,6 +252,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (prevStep) {
             prevStep.classList.add('active');
             prevStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            focusOnCurrentField();
         }
     }
 
@@ -260,12 +283,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     return false;
                 }
                 return true;
-            case 5:
-                if (!userData.moodColor) {
-                    alert('Пожалуйста, выберите цвет');
-                    return false;
-                }
-                return true;
             default:
                 return true;
         }
@@ -281,6 +298,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 break;
             case 3:
                 userData.city = document.getElementById('userCity')?.value.trim() || '';
+                break;
+            case 6:
+                userData.description = document.getElementById('userDescription')?.value.trim() || '';
                 break;
         }
     }
@@ -299,11 +319,23 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const profileHTML = `
             <div class="profile-card">
-                <div class="avatar-preview ${profileData.avatar ? 'has-image' : ''}" 
-                     style="background-image: url(${profileData.avatar || ''});"></div>
+                <div class="profile-avatar">
+                    ${profileData.avatar ? 
+                        `<img src="${profileData.avatar}" alt="Аватар">` : 
+                        `<div class="avatar-placeholder">${getInitials(profileData.name)}</div>`
+                    }
+                </div>
+                
                 <h2 class="profile-name">${profileData.name}</h2>
-                <p class="profile-age">${profileData.age} лет</p>
-                <div class="profile-city">${profileData.city}</div>
+                <div class="profile-meta">
+                    ${profileData.age} лет, ${profileData.city}
+                </div>
+                
+                ${profileData.description ? `
+                    <div class="profile-description">
+                        ${profileData.description}
+                    </div>
+                ` : ''}
                 
                 <div class="profile-interests">
                     ${profileData.interests.map(interest => `
@@ -314,17 +346,32 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="profile-footer">
                     Профиль создан: ${new Date(profileData.createdAt).toLocaleDateString()}
                 </div>
-            </div>
-            
-            <div class="navigation">
-                <button class="btn" id="editProfileBtn">Редактировать</button>
-                <button class="btn" id="newProfileBtn">Новый профиль</button>
+                
+                <div class="profile-actions">
+                    <button class="btn" id="editProfileBtn">Редактировать</button>
+                    <button class="btn" id="newProfileBtn">Новый профиль</button>
+                </div>
             </div>
         `;
         
         mainScreen.innerHTML = profileHTML;
         mainScreen.classList.remove('hidden');
         mainScreen.style.opacity = 1;
+
+        // Восстанавливаем логотип
+        const logoContainer = document.createElement('div');
+        logoContainer.className = 'logo-container';
+        logoContainer.innerHTML = `
+            <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path class="logo-path" d="M20,50 Q35,20 50,50 T80,50" 
+                      stroke="#10367D" 
+                      stroke-width="8" 
+                      fill="none" 
+                      stroke-linecap="round"/>
+            </svg>
+        `;
+        mainScreen.insertBefore(logoContainer, mainScreen.firstChild);
+        initLogoAnimation();
 
         // Кнопка редактирования
         document.getElementById('editProfileBtn').addEventListener('click', () => {
@@ -340,6 +387,10 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Вспомогательные функции
+    function getInitials(name) {
+        return name.split(' ').map(part => part[0]).join('').toUpperCase();
+    }
+
     function getInterestEmoji(interest) {
         const emojis = {
             music: '🎵',
