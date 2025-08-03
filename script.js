@@ -1,142 +1,139 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // Основные цвета
-    const colorPalette = [
-        '#10367D', '#2D4D9E', '#4A64BF', '#677BDF',
-        '#FF6B6B', '#FF8E8E', '#4ECDC4', '#7EDFD8',
-        '#A05195', '#C27BB3', '#FDCB6E', '#FFEAA7'
-    ];
-
-    // Тестовые данные для совместимости (в реальном приложении будут загружаться с сервера)
-    const testMatches = [
-        { name: "Анна", age: 25, city: "Москва", interests: ["music", "travel"], color: "#FF6B6B", avatar: null, compatibility: 92 },
-        { name: "Максим", age: 28, city: "Санкт-Петербург", interests: ["sports", "games"], color: "#4ECDC4", avatar: null, compatibility: 78 },
-        { name: "Елена", age: 23, city: "Москва", interests: ["art", "books"], color: "#A05195", avatar: null, compatibility: 85 }
-    ];
-
-    // Элементы
-    const mainScreen = document.getElementById('mainScreen');
-    const startBtn = document.getElementById('startBtn');
-    const registrationForm = document.getElementById('registrationForm');
-    const logo = document.querySelector('.logo-path');
-    
-    // Инициализация анимации логотипа
-    function initLogoAnimation() {
-        logo.style.strokeDasharray = '150';
-        logo.style.strokeDashoffset = '150';
-        setTimeout(() => {
-            logo.style.animation = 'drawLogo 2s ease-out forwards';
-        }, 500);
-    }
-    initLogoAnimation();
-
-    // Проверяем сохранённый профиль
-    const savedProfile = localStorage.getItem('datingProfile');
-    if (savedProfile) {
-        showProfile(JSON.parse(savedProfile));
-        return;
-    }
-
-    // Данные пользователя
-    const userData = {
-        name: '',
-        age: '',
-        city: '',
-        description: '',
-        interests: [],
-        moodColor: '#10367D',
-        avatar: null,
-        createdAt: new Date().toISOString()
+    // Конфигурация
+    const config = {
+        colors: ['#10367D', '#2D4D9E', '#4A64BF', '#677BDF', '#FF6B6B', '#FF8E8E', '#4ECDC4', '#7EDFD8', '#A05195', '#C27BB3', '#FDCB6E', '#FFEAA7'],
+        maxInterests: 3,
+        minAge: 18,
+        maxAge: 100
     };
 
-    let currentStep = 1;
-    const totalSteps = 7;
+    // Состояние
+    const state = {
+        currentStep: 1,
+        totalSteps: 7,
+        userData: {
+            name: '',
+            age: '',
+            city: '',
+            description: '',
+            interests: [],
+            moodColor: '#10367D',
+            avatar: null,
+            createdAt: new Date().toISOString()
+        }
+    };
+
+    // Элементы
+    const elements = {
+        mainScreen: document.getElementById('mainScreen'),
+        startBtn: document.getElementById('startBtn'),
+        registrationForm: document.getElementById('registrationForm'),
+        logo: document.querySelector('.logo-path')
+    };
 
     // Инициализация
-    startBtn.addEventListener('click', startRegistration);
+    function init() {
+        initLogo();
+        checkSavedProfile();
+        bindEvents();
+    }
 
-    function startRegistration() {
-        mainScreen.style.opacity = 0;
+    // Анимация логотипа
+    function initLogo() {
+        elements.logo.style.strokeDasharray = '150';
+        elements.logo.style.strokeDashoffset = '150';
         setTimeout(() => {
-            mainScreen.classList.add('hidden');
-            registrationForm.classList.remove('hidden');
-            loadRegistrationForm();
+            elements.logo.style.animation = 'drawLogo 2s ease-out forwards';
+        }, 500);
+    }
+
+    // Проверка сохраненного профиля
+    function checkSavedProfile() {
+        const savedProfile = localStorage.getItem('datingProfile');
+        if (savedProfile) {
+            state.userData = JSON.parse(savedProfile);
+            showProfile();
+        }
+    }
+
+    // Назначение событий
+    function bindEvents() {
+        elements.startBtn.addEventListener('click', startRegistration);
+    }
+
+    // Запуск регистрации
+    function startRegistration() {
+        animateTransition(() => {
+            elements.mainScreen.classList.add('hidden');
+            elements.registrationForm.classList.remove('hidden');
+            renderForm();
+        });
+    }
+
+    // Анимация перехода
+    function animateTransition(callback) {
+        elements.mainScreen.style.opacity = '0';
+        setTimeout(() => {
+            callback();
             setTimeout(() => {
-                registrationForm.style.opacity = 1;
-                focusOnCurrentField();
+                elements.registrationForm.style.opacity = '1';
+                focusCurrentField();
             }, 50);
         }, 500);
     }
 
-    function loadRegistrationForm() {
-        registrationForm.innerHTML = `
-            <div class="form-step active" data-step="1">
-                <h2>Как вас зовут?</h2>
-                <input type="text" class="input-field" id="userName" placeholder="Ваше имя" required>
-                <div class="navigation">
-                    <button class="btn next-step">Далее</button>
-                </div>
-            </div>
+    // Рендер формы
+    function renderForm() {
+        elements.registrationForm.innerHTML = `
+            ${generateSteps()}
+        `;
+        setupFormHandlers();
+        focusCurrentField();
+    }
 
-            <div class="form-step" data-step="2">
-                <h2>Сколько вам лет?</h2>
-                <input type="number" class="input-field" id="userAge" min="18" max="100" placeholder="Ваш возраст" required>
-                <div class="navigation">
-                    <button class="btn prev-step">Назад</button>
-                    <button class="btn next-step">Далее</button>
+    // Генерация шагов
+    function generateSteps() {
+        let html = '';
+        for (let step = 1; step <= state.totalSteps; step++) {
+            html += `
+                <div class="form-step ${step === state.currentStep ? 'active' : ''}" data-step="${step}">
+                    ${getStepContent(step)}
+                    ${getStepButtons(step)}
                 </div>
-            </div>
+            `;
+        }
+        return html;
+    }
 
-            <div class="form-step" data-step="3">
-                <h2>Ваш город</h2>
-                <input type="text" class="input-field" id="userCity" placeholder="Где вы живете?" required>
-                <div class="navigation">
-                    <button class="btn prev-step">Назад</button>
-                    <button class="btn next-step">Далее</button>
-                </div>
-            </div>
-
-            <div class="form-step" data-step="4">
-                <h2>Что вам нравится?</h2>
+    // Контент шагов
+    function getStepContent(step) {
+        const steps = {
+            1: `<h2>Как вас зовут?</h2>
+                <input type="text" class="input-field" id="userName" placeholder="Ваше имя" required>`,
+            2: `<h2>Сколько вам лет?</h2>
+                <input type="number" class="input-field" id="userAge" min="${config.minAge}" max="${config.maxAge}" placeholder="Ваш возраст" required>`,
+            3: `<h2>Ваш город</h2>
+                <input type="text" class="input-field" id="userCity" placeholder="Где вы живете?" required>`,
+            4: `<h2>Что вам нравится?</h2>
                 <p>Выберите 1-3 варианта</p>
                 <div class="tags-container">
-                    <div class="tag" data-interest="music">🎵 Музыка</div>
-                    <div class="tag" data-interest="sports">⚽ Спорт</div>
-                    <div class="tag" data-interest="books">📚 Книги</div>
-                    <div class="tag" data-interest="travel">✈️ Путешествия</div>
-                    <div class="tag" data-interest="art">🎨 Искусство</div>
-                    <div class="tag" data-interest="games">🎮 Игры</div>
-                </div>
-                <div class="navigation">
-                    <button class="btn prev-step">Назад</button>
-                    <button class="btn next-step">Далее</button>
-                </div>
-            </div>
-
-            <div class="form-step" data-step="5">
-                <h2>Ваш любимый цвет</h2>
+                    ${['music', 'sports', 'books', 'travel', 'art', 'games']
+                        .map(interest => `
+                            <div class="tag" data-interest="${interest}">
+                                ${getInterestEmoji(interest)} ${getInterestName(interest)}
+                            </div>`
+                        ).join('')}
+                </div>`,
+            5: `<h2>Ваш любимый цвет</h2>
                 <div class="colors-container">
-                    ${colorPalette.map(color => `
+                    ${config.colors.map(color => `
                         <div class="color-option" style="background: ${color}" data-color="${color}"></div>
                     `).join('')}
-                </div>
-                <div class="navigation">
-                    <button class="btn prev-step">Назад</button>
-                    <button class="btn next-step">Далее</button>
-                </div>
-            </div>
-
-            <div class="form-step" data-step="6">
-                <h2>О себе</h2>
+                </div>`,
+            6: `<h2>О себе</h2>
                 <p>Расскажите что-то о себе (необязательно)</p>
-                <textarea class="input-field" id="userDescription" placeholder="Я люблю путешествия, книги и..." rows="4"></textarea>
-                <div class="navigation">
-                    <button class="btn prev-step">Назад</button>
-                    <button class="btn next-step">Далее</button>
-                </div>
-            </div>
-
-            <div class="form-step" data-step="7">
-                <h2>Ваше фото</h2>
+                <textarea class="input-field" id="userDescription" placeholder="Я люблю путешествия, книги и..." rows="4"></textarea>`,
+            7: `<h2>Ваше фото</h2>
                 <p>Добавьте фото для профиля (необязательно)</p>
                 <div class="avatar-upload">
                     <label class="btn">
@@ -144,149 +141,162 @@ document.addEventListener('DOMContentLoaded', function() {
                         <input type="file" id="avatarUpload" accept="image/*" hidden>
                     </label>
                     <div class="avatar-preview" id="avatarPreview"></div>
-                </div>
-                <div class="navigation">
-                    <button class="btn prev-step">Назад</button>
-                    <button class="btn" id="completeBtn">Сохранить профиль</button>
-                </div>
-            </div>
-        `;
-
-        initFormHandlers();
-        focusOnCurrentField();
+                </div>`
+        };
+        return steps[step] || '';
     }
 
-    function initFormHandlers() {
+    // Кнопки шагов
+    function getStepButtons(step) {
+        return `
+            <div class="navigation">
+                ${step > 1 ? '<button class="btn prev-step">Назад</button>' : ''}
+                <button class="btn next-step">
+                    ${step === state.totalSteps ? 'Сохранить профиль' : 'Далее'}
+                </button>
+            </div>
+        `;
+    }
+
+    // Настройка обработчиков
+    function setupFormHandlers() {
         // Навигация
         document.querySelectorAll('.next-step').forEach(btn => {
-            btn.addEventListener('click', goToNextStep);
+            btn.addEventListener('click', () => {
+                if (state.currentStep === state.totalSteps) {
+                    saveProfile();
+                } else {
+                    nextStep();
+                }
+            });
         });
 
         document.querySelectorAll('.prev-step').forEach(btn => {
-            btn.addEventListener('click', goToPrevStep);
+            btn.addEventListener('click', prevStep);
         });
 
         // Интересы
         document.querySelectorAll('.tag').forEach(tag => {
-            tag.addEventListener('click', function() {
-                const interest = this.dataset.interest;
-                if (this.classList.contains('selected')) {
-                    this.classList.remove('selected');
-                    userData.interests = userData.interests.filter(i => i !== interest);
-                } else {
-                    if (userData.interests.length < 3) {
-                        this.classList.add('selected');
-                        userData.interests.push(interest);
-                    } else {
-                        alert('Можно выбрать не более 3 интересов');
-                    }
-                }
-            });
+            tag.addEventListener('click', toggleInterest);
         });
 
         // Цвета
         document.querySelectorAll('.color-option').forEach(color => {
-            color.addEventListener('click', function() {
-                document.querySelectorAll('.color-option').forEach(c => {
-                    c.style.transform = 'scale(1)';
-                    c.style.boxShadow = 'none';
-                });
-                this.style.transform = 'scale(1.1)';
-                this.style.boxShadow = '0 0 15px rgba(0,0,0,0.2)';
-                userData.moodColor = this.dataset.color;
-            });
+            color.addEventListener('click', selectColor);
         });
 
         // Аватар
-        document.getElementById('avatarUpload')?.addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file && file.type.match('image.*')) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    userData.avatar = e.target.result;
-                    const preview = document.getElementById('avatarPreview');
-                    preview.style.backgroundImage = `url(${e.target.result})`;
-                    preview.classList.add('has-image');
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+        const upload = document.getElementById('avatarUpload');
+        if (upload) {
+            upload.addEventListener('change', handleAvatar);
+        }
 
-        // Сохранение
-        document.getElementById('completeBtn')?.addEventListener('click', completeRegistration);
-
-        // Обработка Enter в полях ввода
+        // Enter в полях ввода
         document.querySelectorAll('.input-field').forEach(input => {
-            input.addEventListener('keypress', function(e) {
+            input.addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     e.preventDefault();
-                    goToNextStep();
+                    if (state.currentStep === state.totalSteps) {
+                        saveProfile();
+                    } else {
+                        nextStep();
+                    }
                 }
             });
         });
     }
 
-    function focusOnCurrentField() {
-        const activeStep = document.querySelector('.form-step.active');
-        if (!activeStep) return;
+    // Обработчики
+    function toggleInterest(e) {
+        const interest = e.target.dataset.interest;
         
-        const input = activeStep.querySelector('input, textarea');
-        if (input) {
-            setTimeout(() => {
-                input.focus();
-            }, 300);
+        if (e.target.classList.contains('selected')) {
+            e.target.classList.remove('selected');
+            state.userData.interests = state.userData.interests.filter(i => i !== interest);
+        } else if (state.userData.interests.length < config.maxInterests) {
+            e.target.classList.add('selected');
+            state.userData.interests.push(interest);
+        } else {
+            alert(`Можно выбрать не более ${config.maxInterests} интересов`);
         }
     }
 
-    function goToNextStep() {
-        if (!validateStep(currentStep)) return;
-        saveStepData(currentStep);
+    function selectColor(e) {
+        document.querySelectorAll('.color-option').forEach(c => {
+            c.style.transform = 'scale(1)';
+            c.style.boxShadow = 'none';
+        });
+        
+        e.target.style.transform = 'scale(1.1)';
+        e.target.style.boxShadow = '0 0 15px rgba(0,0,0,0.2)';
+        state.userData.moodColor = e.target.dataset.color;
+    }
 
-        document.querySelector(`[data-step="${currentStep}"]`).classList.remove('active');
-        currentStep++;
-        const nextStep = document.querySelector(`[data-step="${currentStep}"]`);
-        if (nextStep) {
-            nextStep.classList.add('active');
-            nextStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            focusOnCurrentField();
+    function handleAvatar(e) {
+        const file = e.target.files[0];
+        if (file && file.type.match('image.*')) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                state.userData.avatar = e.target.result;
+                const preview = document.getElementById('avatarPreview');
+                preview.style.backgroundImage = `url(${e.target.result})`;
+            };
+            reader.readAsDataURL(file);
         }
     }
 
-    function goToPrevStep() {
-        document.querySelector(`[data-step="${currentStep}"]`).classList.remove('active');
-        currentStep--;
-        const prevStep = document.querySelector(`[data-step="${currentStep}"]`);
-        if (prevStep) {
-            prevStep.classList.add('active');
-            prevStep.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            focusOnCurrentField();
+    // Навигация
+    function nextStep() {
+        if (!validateStep()) return;
+        saveStepData();
+        goToStep(state.currentStep + 1);
+    }
+
+    function prevStep() {
+        goToStep(state.currentStep - 1);
+    }
+
+    function goToStep(step) {
+        if (step < 1 || step > state.totalSteps) return;
+        
+        document.querySelector('.form-step.active').classList.remove('active');
+        state.currentStep = step;
+        const nextStepEl = document.querySelector(`[data-step="${step}"]`);
+        
+        if (nextStepEl) {
+            nextStepEl.classList.add('active');
+            nextStepEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            focusCurrentField();
         }
     }
 
-    function validateStep(step) {
-        switch(step) {
+    // Валидация
+    function validateStep() {
+        switch(state.currentStep) {
             case 1:
-                if (!document.getElementById('userName')?.value.trim()) {
-                    alert('Пожалуйста, введите ваше имя');
+                if (!document.getElementById('userName').value.trim()) {
+                    alert('Введите ваше имя');
                     return false;
                 }
                 return true;
             case 2:
-                const age = parseInt(document.getElementById('userAge')?.value);
-                if (isNaN(age) || age < 18 || age > 100) {
-                    alert('Пожалуйста, введите корректный возраст (от 18 до 100)');
+                const age = parseInt(document.getElementById('userAge').value);
+                if (isNaN(age)) {
+                    alert('Введите корректный возраст');
                     return false;
-                }
+                
+                }   
+                
                 return true;
             case 3:
-                if (!document.getElementById('userCity')?.value.trim()) {
-                    alert('Пожалуйста, укажите ваш город');
+                if (!document.getElementById('userCity').value.trim()) {
+                    alert('Укажите ваш город');
                     return false;
                 }
                 return true;
             case 4:
-                if (userData.interests.length === 0) {
-                    alert('Пожалуйста, выберите хотя бы один интерес');
+                if (state.userData.interests.length === 0) {
+                    alert('Выберите хотя бы один интерес');
                     return false;
                 }
                 return true;
@@ -295,73 +305,83 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    function saveStepData(step) {
-        switch(step) {
+    // Сохранение данных
+    function saveStepData() {
+        switch(state.currentStep) {
             case 1:
-                userData.name = document.getElementById('userName')?.value.trim() || '';
+                state.userData.name = document.getElementById('userName').value.trim();
                 break;
             case 2:
-                userData.age = document.getElementById('userAge')?.value || '';
+                state.userData.age = document.getElementById('userAge').value;
                 break;
             case 3:
-                userData.city = document.getElementById('userCity')?.value.trim() || '';
+                state.userData.city = document.getElementById('userCity').value.trim();
                 break;
             case 6:
-                userData.description = document.getElementById('userDescription')?.value.trim() || '';
+                state.userData.description = document.getElementById('userDescription').value.trim();
                 break;
         }
     }
 
-    function completeRegistration() {
-        if (!validateStep(currentStep)) return;
-        saveStepData(currentStep);
-
-        // Сохраняем профиль
-        localStorage.setItem('datingProfile', JSON.stringify(userData));
-        showProfile(userData);
+    // Фокус на поле
+    function focusCurrentField() {
+        const activeStep = document.querySelector('.form-step.active');
+        const input = activeStep?.querySelector('input, textarea');
+        input?.focus();
     }
 
-    function showProfile(profileData) {
-        registrationForm.classList.add('hidden');
+    // Сохранение профиля
+    function saveProfile() {
+        if (!validateStep()) return;
+        saveStepData();
         
-        const profileHTML = `
+        localStorage.setItem('datingProfile', JSON.stringify(state.userData));
+        showProfile();
+    }
+
+    // Показ профиля
+    function showProfile() {
+        elements.registrationForm.classList.add('hidden');
+        elements.mainScreen.innerHTML = `
+        <div class="logo-container">
+            <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <path class="logo-path" d="M20,50 Q35,20 50,50 T80,50" 
+                      stroke="#10367D" 
+                      stroke-width="8" 
+                      fill="none" 
+                      stroke-linecap="round"/>
+            </svg>
+        </div>
             <div class="profile-card">
+                
                 <div class="profile-avatar">
-                    ${profileData.avatar ? 
-                        `<img src="${profileData.avatar}" alt="Аватар">` : 
-                        `<div class="avatar-placeholder">${getInitials(profileData.name)}</div>`
+                    ${state.userData.avatar 
+                        ? `<img src="${state.userData.avatar}" alt="Аватар">` 
+                        : `<div class="avatar-placeholder">${getInitials(state.userData.name)}</div>`
                     }
                 </div>
                 
-                <h2 class="profile-name">${profileData.name}</h2>
-                <div class="profile-meta">
-                    ${profileData.age} лет, ${profileData.city}
+                <h2 class="profile-name">${state.userData.name}</h2>
+                <div class="profile-age-city">
+                    ${state.userData.age} лет, ${state.userData.city}
                 </div>
                 
-                <!-- Блок совместимости -->
-                <div class="compatibility-section">
-                    <div class="compatibility-badge" style="background: ${profileData.moodColor}">
-                        Ваша совместимость: ${calculateCompatibility(profileData)}%
-                    </div>
-                    <div class="compatibility-cards">
-                        ${generateMatchCards(profileData)}
-                    </div>
-                </div>
-                
-                ${profileData.description ? `
+                ${state.userData.description ? `
                     <div class="profile-description">
-                        ${profileData.description}
+                        ${state.userData.description}
                     </div>
                 ` : ''}
                 
                 <div class="profile-interests">
-                    ${profileData.interests.map(interest => `
-                        <div class="interest-tag">${getInterestEmoji(interest)} ${getInterestName(interest)}</div>
+                    ${state.userData.interests.map(interest => `
+                        <div class="interest-tag">
+                            ${getInterestEmoji(interest)} ${getInterestName(interest)}
+                        </div>
                     `).join('')}
                 </div>
                 
                 <div class="profile-footer">
-                    Профиль создан: ${new Date(profileData.createdAt).toLocaleDateString()}
+                    Профиль создан: ${new Date(state.userData.createdAt).toLocaleDateString()}
                 </div>
                 
                 <div class="profile-actions">
@@ -371,90 +391,43 @@ document.addEventListener('DOMContentLoaded', function() {
             </div>
         `;
         
-        mainScreen.innerHTML = profileHTML;
-        mainScreen.classList.remove('hidden');
-        mainScreen.style.opacity = 1;
-
-        // Восстанавливаем логотип
-        const logoContainer = document.createElement('div');
-        logoContainer.className = 'logo-container';
-        logoContainer.innerHTML = `
-            <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <path class="logo-path" d="M20,50 Q35,20 50,50 T80,50" 
-                      stroke="#10367D" 
-                      stroke-width="8" 
-                      fill="none" 
-                      stroke-linecap="round"/>
-            </svg>
-        `;
-        mainScreen.insertBefore(logoContainer, mainScreen.firstChild);
-        initLogoAnimation();
-
-        // Кнопка редактирования
+        elements.mainScreen.classList.remove('hidden');
+        elements.mainScreen.style.opacity = '1';
+        
+        // Назначение событий профиля
         document.getElementById('editProfileBtn').addEventListener('click', () => {
-            Object.assign(userData, profileData);
             startRegistration();
         });
-
-        // Кнопка нового профиля
+        
         document.getElementById('newProfileBtn').addEventListener('click', () => {
             localStorage.removeItem('datingProfile');
             location.reload();
         });
-    }
-
-    // Алгоритм совместимости
-    function calculateCompatibility(user) {
-        // В реальном приложении здесь будет сложный алгоритм
-        // Пока используем простую случайную величину с базой от цвета и города
-        let base = 70;
-        if (user.city === "Москва") base += 10;
-        if (user.moodColor === "#FF6B6B") base += 5;
-        return Math.min(100, base + Math.floor(Math.random() * 20));
-    }
-
-    // Генерация карточек совместимости
-    function generateMatchCards(user) {
-        return testMatches.map(match => `
-            <div class="match-card" style="border-color: ${match.color}">
-                <div class="match-avatar">
-                    ${match.avatar ? 
-                        `<img src="${match.avatar}" alt="${match.name}">` : 
-                        `<div style="background: ${match.color}; width: 100%; height: 100%; border-radius: 50%;"></div>`
-                    }
-                </div>
-                <div class="match-name">${match.name}</div>
-                <div class="match-percent">${match.compatibility}%</div>
-            </div>
-        `).join('');
+        
+        initLogo();
     }
 
     // Вспомогательные функции
     function getInitials(name) {
-        return name.split(' ').map(part => part[0]).join('').toUpperCase();
+        return name.split(' ').map(n => n[0]).join('').toUpperCase();
     }
 
     function getInterestEmoji(interest) {
         const emojis = {
-            music: '🎵',
-            sports: '⚽',
-            books: '📚',
-            travel: '✈️',
-            art: '🎨',
-            games: '🎮'
+            music: '🎵', sports: '⚽', books: '📚',
+            travel: '✈️', art: '🎨', games: '🎮'
         };
         return emojis[interest] || '❤️';
     }
 
     function getInterestName(interest) {
         const names = {
-            music: 'Музыка',
-            sports: 'Спорт',
-            books: 'Книги',
-            travel: 'Путешествия',
-            art: 'Искусство',
-            games: 'Игры'
+            music: 'Музыка', sports: 'Спорт', books: 'Книги',
+            travel: 'Путешествия', art: 'Искусство', games: 'Игры'
         };
         return names[interest] || interest;
     }
+
+    // Запуск
+    init();
 });
