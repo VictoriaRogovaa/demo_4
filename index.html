@@ -5,27 +5,29 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ТочкаСхода — Знакомства</title>
     <link rel="stylesheet" href="style.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="screen main-screen" id="mainScreen">
-        <div class="logo-container">
-            <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-                <path class="logo-path" d="M20,50 Q35,20 50,50 T80,50" 
-                      stroke="#10367D" 
-                      stroke-width="8" 
-                      fill="none" 
-                      stroke-linecap="round"/>
-            </svg>
+    <div class="app-container">
+        <!-- Главный экран -->
+        <div class="screen active" id="mainScreen">
+            <div class="logo-container">
+                <svg class="logo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                    <path class="logo-path" d="M20,50 Q35,20 50,50 T80,50" 
+                          stroke="#D7303B" 
+                          stroke-width="8" 
+                          fill="none"
+                          stroke-linecap="round"/>
+                </svg>
+            </div>
+            <h1 class="app-title">ТочкаСхода</h1>
+            <p class="app-subtitle">Место, где пересекаются ваши пути</p>
+            <button class="btn pulse" id="startBtn">Начать знакомства</button>
         </div>
-        <h1>ТочкаСхода</h1>
-        <p>Место, где пересекаются ваши пути</p>
-        <button class="btn pulse" id="startBtn">Начать знакомства</button>
-    </div>
 
-    <div class="screen registration-form hidden" id="registrationForm"></div>
+        <!-- Форма регистрации -->
+        <div class="screen" id="registrationForm"></div>
+    </div>
 
     <script src="script.js"></script>
 </body>
