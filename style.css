@@ -1,49 +1,83 @@
 :root {
-    --primary: #10367D;
-    --primary-light: #3a5a9a;
-    --text: #2D3436;
-    --light: #F5F6FA;
-    --white: #FFFFFF;
-    --radius: 10px;
+    /* Цветовая схема */
+    --primary: #D7303B;
+    --primary-dark: #B71C1C;
+    --primary-light: #FFEBEE;
+    --text-primary: #2D3436;
+    --text-secondary: #636E72;
+    --background: #FFFFFF;
+    --surface: #F5F6FA;
+    --border: #DFE6E9;
+    --error: #F44336;
+    --success: #4CAF50;
+    --warning: #FFC107;
+
+    /* Размеры */
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.08);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.12);
+    
+    /* Анимации */
+    --transition-fast: 0.15s;
+    --transition-normal: 0.3s;
 }
 
+/* Базовые стили */
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
 }
 
 body {
     font-family: 'Inter', sans-serif;
-    background: var(--white);
-    color: var(--text);
+    background-color: var(--background);
+    color: var(--text-primary);
+    line-height: 1.5;
     min-height: 100vh;
+    padding: 20px;
     display: flex;
     justify-content: center;
     align-items: center;
-    padding: 20px;
 }
 
-.screen {
+/* Контейнер приложения */
+.app-container {
     width: 100%;
     max-width: 500px;
+    margin: 0 auto;
+}
+
+/* Общие стили экранов */
+.screen {
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
     text-align: center;
-    transition: all 0.5s ease;
+    transition: all var(--transition-normal) ease;
+    opacity: 0;
+    height: 0;
+    overflow: hidden;
 }
 
-.hidden {
-    display: none !important;
+.screen.active {
+    opacity: 1;
+    height: auto;
+    overflow: visible;
 }
 
-/* Логотип с анимацией */
+/* Логотип */
 .logo-container {
-    width: 100px;
-    height: 100px;
-    margin-bottom: 30px;
+    width: 120px;
+    height: 120px;
+    margin-bottom: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .logo {
@@ -54,54 +88,67 @@ body {
 .logo-path {
     stroke-dasharray: 150;
     stroke-dashoffset: 150;
-    animation: draw 1.8s ease-out forwards;
+    animation: drawLogo 1.5s ease-out forwards;
 }
 
-@keyframes draw {
-    80% {
-        stroke-dashoffset: 0;
-    }
-    100% {
-        transform: scale(1.1);
-    }
+@keyframes drawLogo {
+    0% { stroke-dashoffset: 150; }
+    100% { stroke-dashoffset: 0; }
 }
 
-/* Основные элементы */
-h1 {
+/* Типография */
+.app-title {
     font-size: 2.2rem;
     font-weight: 700;
     color: var(--primary);
-    margin-bottom: 15px;
+    margin-bottom: 12px;
+    line-height: 1.2;
 }
 
-p {
+.app-subtitle {
     font-size: 1.1rem;
-    color: var(--text);
-    opacity: 0.8;
-    margin-bottom: 30px;
-    line-height: 1.6;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+    max-width: 320px;
+}
+
+.section-title {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: var(--primary);
+}
+
+.section-description {
+    font-size: 1rem;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
 }
 
 /* Кнопки */
 .btn {
-    background: var(--primary);
-    color: var(--white);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--primary);
+    color: white;
     border: none;
-    padding: 16px 40px;
-    border-radius: var(--radius);
+    padding: 16px 32px;
+    border-radius: var(--radius-md);
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: all var(--transition-normal) ease;
+    box-shadow: var(--shadow-sm);
+    min-width: 200px;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 4px 12px rgba(16, 54, 125, 0.2);
+    margin: 8px 0;
 }
 
 .btn:hover {
-    background: var(--primary-light);
+    background-color: var(--primary-dark);
     transform: translateY(-2px);
-    box-shadow: 0 6px 16px rgba(16, 54, 125, 0.3);
+    box-shadow: var(--shadow-md);
 }
 
 .btn:active {
@@ -112,51 +159,31 @@ p {
     animation: pulse 2s infinite;
 }
 
+.btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none !important;
+}
+
+.btn-secondary {
+    background-color: var(--surface);
+    color: var(--text-primary);
+}
+
+.btn-secondary:hover {
+    background-color: #e0e0e0;
+}
+
 @keyframes pulse {
-    0% {
-        transform: scale(1);
-    }
-    50% {
-        transform: scale(1.05);
-    }
-    100% {
-        transform: scale(1);
-    }
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
 }
 
-/* Эффект волны при клике */
-.btn::after {
-    content: "";
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    width: 5px;
-    height: 5px;
-    background: rgba(255, 255, 255, 0.5);
-    opacity: 0;
-    border-radius: 100%;
-    transform: scale(1, 1) translate(-50%, -50%);
-    transform-origin: 50% 50%;
-}
-
-.btn:active::after {
-    animation: ripple 0.6s ease-out;
-}
-
-@keyframes ripple {
-    0% {
-        transform: scale(1, 1) translate(-50%, -50%);
-        opacity: 0.5;
-    }
-    100% {
-        transform: scale(20, 20) translate(-50%, -50%);
-        opacity: 0;
-    }
-}
-
-/* Форма регистрации */
-.registration-form {
-    padding: 30px 20px;
+/* Формы */
+.form-container {
+    width: 100%;
+    padding: 20px;
 }
 
 .form-step {
@@ -172,19 +199,24 @@ p {
 .input-field {
     width: 100%;
     padding: 16px;
-    margin: 15px 0;
-    border: 2px solid #e0e4e8;
-    border-radius: var(--radius);
+    margin: 12px 0;
+    border: 2px solid var(--border);
+    border-radius: var(--radius-md);
     font-size: 1rem;
-    transition: all 0.3s;
+    transition: all var(--transition-normal) ease;
 }
 
 .input-field:focus {
     border-color: var(--primary);
     outline: none;
-    box-shadow: 0 0 0 3px rgba(16, 54, 125, 0.1);
+    box-shadow: 0 0 0 3px rgba(215, 48, 59, 0.1);
 }
 
+.input-field::placeholder {
+    color: #B2BEC3;
+}
+
+/* Теги интересов */
 .tags-container {
     display: flex;
     flex-wrap: wrap;
@@ -194,25 +226,31 @@ p {
 }
 
 .tag {
-    background: #f0f4f8;
-    padding: 10px 18px;
-    border-radius: var(--radius);
+    background: var(--surface);
+    padding: 10px 16px;
+    border-radius: var(--radius-md);
     cursor: pointer;
-    transition: all 0.3s;
+    transition: all var(--transition-normal) ease;
+    font-size: 0.95rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
 }
 
 .tag.selected {
     background: var(--primary);
-    color: var(--white);
+    color: white;
     transform: translateY(-2px);
+    box-shadow: var(--shadow-sm);
 }
 
+/* Цветовые варианты */
 .colors-container {
     display: flex;
     flex-wrap: wrap;
-    gap: 15px;
+    gap: 12px;
     justify-content: center;
-    margin: 25px 0;
+    margin: 20px 0;
 }
 
 .color-option {
@@ -220,70 +258,62 @@ p {
     height: 50px;
     border-radius: 50%;
     cursor: pointer;
-    transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+    transition: all var(--transition-normal) ease;
+    border: 2px solid transparent;
 }
 
 .color-option.selected {
-    transform: scale(1.15);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    transform: scale(1.1);
+    box-shadow: var(--shadow-md);
+    border-color: var(--primary);
 }
 
+/* Загрузка аватара */
 .avatar-upload {
-    margin: 25px 0;
+    margin: 20px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .avatar-preview {
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    margin: 20px auto;
+    margin: 16px auto;
+    background-color: var(--surface);
     background-size: cover;
     background-position: center;
     border: 4px solid var(--primary);
-    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
 }
 
+.avatar-placeholder {
+    font-size: 2.5rem;
+    color: var(--primary);
+    opacity: 0.6;
+}
+
+/* Навигация */
 .navigation {
     display: flex;
-    gap: 15px;
+    gap: 12px;
     justify-content: center;
     margin-top: 30px;
+    width: 100%;
+    flex-wrap: wrap;
 }
 
-/* Анимации */
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Адаптация под мобильные */
-@media (max-width: 480px) {
-    .screen {
-        padding: 20px;
-    }
-    
-    .btn {
-        padding: 14px 32px;
-    }
-    
-    .input-field {
-        padding: 14px;
-    }
-}
-/* Стили профиля */
+/* Карточка профиля */
 .profile-card {
     background: white;
-    border-radius: 16px;
+    border-radius: var(--radius-lg);
     padding: 30px;
     width: 100%;
-    max-width: 500px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    box-shadow: var(--shadow-md);
     text-align: center;
     margin: 0 auto;
     animation: fadeIn 0.6s ease-out;
@@ -293,13 +323,9 @@ p {
     width: 120px;
     height: 120px;
     border-radius: 50%;
-    object-fit: cover;
-    border: 4px solid var(--primary);
     margin: 0 auto 20px;
-    background-color: #f0f4f8;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    background-color: var(--surface);
+    border: 4px solid var(--primary);
     overflow: hidden;
     position: relative;
 }
@@ -310,30 +336,23 @@ p {
     object-fit: cover;
 }
 
-.profile-avatar .avatar-placeholder {
-    font-size: 2.5rem;
-    color: var(--primary);
-    opacity: 0.6;
-}
-
 .profile-name {
     font-size: 1.8rem;
     font-weight: 700;
     color: var(--primary);
-    margin-bottom: 5px;
+    margin-bottom: 8px;
 }
 
 .profile-age-city {
     font-size: 1.1rem;
-    color: var(--text);
+    color: var(--text-secondary);
     margin-bottom: 20px;
-    opacity: 0.8;
 }
 
 .profile-description {
-    background: #f8fafc;
-    padding: 15px;
-    border-radius: 12px;
+    background: var(--surface);
+    padding: 16px;
+    border-radius: var(--radius-md);
     margin: 20px 0;
     text-align: left;
     font-size: 0.95rem;
@@ -351,188 +370,126 @@ p {
 .interest-tag {
     background: var(--primary);
     color: white;
-    padding: 6px 14px;
+    padding: 6px 12px;
     border-radius: 20px;
     font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
 }
 
 .profile-footer {
     margin-top: 25px;
     font-size: 0.9rem;
-    color: var(--text);
-    opacity: 0.6;
+    color: var(--text-secondary);
 }
 
 .profile-actions {
     display: flex;
-    gap: 15px;
+    gap: 12px;
     justify-content: center;
     margin-top: 30px;
+    flex-wrap: wrap;
 }
 
-/* Анимация логотипа */
-@keyframes drawLogo {
-    0% {
-        stroke-dashoffset: 150;
+/* Статусы */
+.profile-status {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    padding: 3px 10px;
+    border-radius: 12px;
+    vertical-align: middle;
+}
+
+.status-online {
+    background: var(--success);
+    color: white;
+}
+
+.status-offline {
+    background: var(--error);
+    color: white;
+}
+
+.status-recent {
+    background: var(--warning);
+    color: var(--text-primary);
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
     }
-    80% {
-        stroke-dashoffset: 0;
-        transform: scale(1);
-    }
-    90% {
-        transform: scale(1.1);
-    }
-    100% {
-        transform: scale(1);
+    to {
+        opacity: 1;
+        transform: translateY(0);
     }
 }
 
-.logo-path {
-    animation: drawLogo 2s ease-out forwards;
-}
-
-/* Добавим в конец файла, после существующих медиа-запросов */
-
+/* Медиа-запросы */
 @media (max-width: 480px) {
-    /* Общие стили для кнопок на мобильных */
-    .btn {
-        width: 100%;
-        max-width: 300px;
-        margin: 8px auto;
-        padding: 14px 20px;
+    body {
+        padding: 16px;
     }
-
-    /* Навигация между шагами */
+    
+    .app-title {
+        font-size: 1.8rem;
+    }
+    
+    .section-title {
+        font-size: 1.5rem;
+    }
+    
+    .btn {
+        padding: 14px 24px;
+        min-width: 160px;
+        width: 100%;
+    }
+    
     .navigation {
         flex-direction: column;
-        align-items: center;
-        width: 100%;
-        gap: 10px;
-    }
-
-    .navigation .btn {
-        width: 100%;
-        max-width: 300px;
-    }
-
-    /* Контейнер тегов интересов */
-    .tags-container {
         gap: 8px;
-        padding: 0 10px;
     }
-
-    .tag {
-        padding: 8px 14px;
-        font-size: 0.9rem;
+    
+    .profile-actions {
+        flex-direction: column;
     }
-
-    /* Цветовые варианты */
-    .colors-container {
-        gap: 10px;
-        padding: 0 10px;
-    }
-
+    
     .color-option {
         width: 40px;
         height: 40px;
     }
-
-    /* Поля ввода */
+    
     .input-field {
-        width: calc(100% - 20px);
-        margin: 10px auto;
+        padding: 14px;
     }
-
-    /* Профиль */
-    .profile-actions {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .profile-actions .btn {
-        width: 100%;
-        max-width: 300px;
-    }
-
-    /* Карточки совместимости */
-    .match-card {
-        min-width: 120px;
+    
+    .profile-card {
+        padding: 20px;
     }
 }
 
 @media (max-width: 360px) {
-    /* Для совсем маленьких экранов */
+    .app-title {
+        font-size: 1.6rem;
+    }
+    
+    .app-subtitle,
+    .section-description {
+        font-size: 0.95rem;
+    }
+    
     .tag {
-        padding: 6px 10px;
-        font-size: 0.8rem;
+        padding: 8px 12px;
+        font-size: 0.85rem;
     }
-
+    
     .color-option {
-        width: 35px;
-        height: 35px;
+        width: 36px;
+        height: 36px;
     }
-
-    h1 {
-        font-size: 1.8rem;
-    }
-
-    p {
-        font-size: 1rem;
-    }
-}
-
-.btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none !important;
-}
-.profile-status {
-    display: inline-block;
-    margin-left: 10px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    padding: 3px 10px;
-    border-radius: 15px;
-    vertical-align: middle;
-}
-
-.status-online {
-    background: #4CAF50;
-    color: white;
-}
-
-.status-offline {
-    background: #F44336;
-    color: white;
-}
-
-.status-recent {
-    background: #FFC107;
-    color: var(--text);
-}
-/* Добавляем в конец файла */
-.profile-status {
-    display: inline-block;
-    margin-left: 10px;
-    font-size: 0.9rem;
-    font-weight: 500;
-    padding: 3px 10px;
-    border-radius: 15px;
-    vertical-align: middle;
-}
-
-.status-online {
-    background: #4CAF50;
-    color: white;
-}
-
-.status-offline {
-    background: #F44336;
-    color: white;
-}
-
-.status-recent {
-    background: #FFC107;
-    color: var(--text);
 }
